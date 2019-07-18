@@ -1,0 +1,21 @@
+{
+    "name": "ceus-media/http",
+    "description": "Handling of HTTP communication, garnished by handy tools.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "kriss0r",
+            "email": "christian.wuerker@ceus-media.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "psr/http-message": "^1.0@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "CeusMedia\\HTTP\\": ["src/"]
+        }
+    }
+}
+
