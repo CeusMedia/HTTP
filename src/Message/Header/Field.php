@@ -99,7 +99,7 @@ class Field
 	{
 		if( !trim( $name ) )
 			throw new InvalidArgumentException( 'Field name cannot be empty' );
-		$this->name	= strtolower( $name );
+		$this->name	= $name;
 	}
 
 	public function setValue( $value )

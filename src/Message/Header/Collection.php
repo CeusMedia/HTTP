@@ -181,95 +181,66 @@ class Collection
 			$this->addField( $field );
 	}
 
-	public function getField( $name )
-	{
-		$name	= strtolower( $name );
-		foreach( $this->fields as $sectionName => $sectionPairs )
-			if( array_key_exists( $name, $sectionPairs ) )
-				return $this->fields[$sectionName][$name];
-		return NULL;
-	}
-
 	public function getFields()
 	{
 		$list	= array();
-		foreach( $this->fields as $sectionName => $sectionPairs ){
-			foreach( $sectionPairs as $name => $fieldList ){
-				if(count($fieldList)){
-					$values	= [];
-					foreach($fieldList as $field)
-						$values[]	= $field->getValue();
-					$list[$name]	= $values;
-				}
+		foreach( $this->fields as $key => $fieldList ){
+			if(!count($fieldList))
+				continue;
+			$values	= [];
+			$name = null;
+			foreach($fieldList as $field){
+				$name 		= $name ? $name : $field->getName();
+				$values[]	= $field->getValue();
 			}
+			$list[$name]	= $values;
 		}
 		return $list;
 	}
 
-	public function getFieldsByName( $name, $latestOnly = FALSE )
+	public function getFieldsByName( $name )
 	{
-		$name	= strtolower( $name );
-		foreach( $this->fields as $sectionName => $sectionPairs ){
-			if( array_key_exists( $name, $sectionPairs ) ){
-				if( $this->fields[$sectionName][$name] ){
-					if( $latestOnly ){
-						$size	= count( $this->fields[$sectionName][$name] );
-						return $this->fields[$sectionName][$name][$size - 1];
-					}
-					return $this->fields[$sectionName][$name];
-				}
-			}
-		}
-		if( $latestOnly )
-			return NULL;
+		$list	= array();
+		$key	= strtolower( $name );
+		foreach($this->fields as $index => $field)
+			if(strtolower($field->getName()) === $key)
+				$list[]	 = $field;
 		return array();
 	}
 
 	public function hasField( $name )
 	{
-		$name	= strtolower( $name );
-		foreach( $this->fields as $sectionName => $sectionPairs )
-			if( array_key_exists( $name, $sectionPairs ) )
-				return (bool) count( $this->fields[$sectionName][$name] );
+		$key	= strtolower( $name );
+		foreach($this->fields as $field)
+			if(strtolower($field->getName()) === $key)
+				return TRUE;
 		return FALSE;
 	}
 
 	public function removeField( Field $field )
 	{
-		$name	= $field->getName();
-		foreach( $this->fields as $sectionName => $sectionPairs )
-		{
-			if( !array_key_exists( $name, $sectionPairs ) )
-				continue;
-			foreach( $sectionPairs as $nr => $sectionField )
-				if( $sectionField == $field )
-					unset( $this->fields[$sectionName][$name][$nr] );
-		}
+		foreach($this->fields as $index => $item)
+			if(strtolower($item->getName()) === strtolower($field->getName()))
+				if($item->getValue() === $field->getValue())
+					unset($this->fields[$index]);
+		return $this;
 	}
 
 	public function removeByName( $name )
 	{
-		if( isset( $this->fields['others'][$name] ) )
-			unset( $this->fields['others'][$name] );
-		foreach( $this->fields as $sectionName => $sectionPairs )
-			if( array_key_exists( $name, $sectionPairs ) )
-				$this->fields[$sectionName][$name]		= array();
+		foreach($this->fields as $index => $item)
+			if(strtolower($item->getName()) === strtolower($field->getName()))
+				unset($this->fields[$index]);
 		return $this;
 	}
 
 	public function setField( Field $field, $emptyBefore = TRUE ): self
 	{
 		$this->validateFieldName($field->getName());
-
         $key    = strtolower($field->getName());
-        if(!is_array($value))
-            $value  = [$value];
-		if($emptyBefore)
+		if(!isset($this->fields[$key]) || $emptyBefore)
 			$this->fields[$key]   = [];
-        $this->fields[$key]   = [
-            'name'      => $field->getName(),
-            'values'    => $value,
-        ];
+        $this->fields[$key][]   = $field;
 		return $this;
 	}
 
@@ -280,7 +251,24 @@ class Collection
 	}
 
 	public function render(){
-		return Field\Renderer::render( $this );
+		$fields	= $this->fields;
+		if (!$fields)
+			return '';
+		$list	= array();
+		foreach($fields as $field)
+			$list[]	= $field->toString();
+		$string	= join("\r\n", $list)."\r\n";
+		return $string;
+	}
+
+	protected function validateFieldName($name){
+		$name	= strtolower( $name );
+		foreach($this->allowedHeaders as $section => $names)
+			if(in_array($name, $names))
+				return TRUE;
+		if(substr($name, 0, 2) === 'x-')
+			return TRUE;
+		return FALSE;
 	}
 
 	public function __toString()
