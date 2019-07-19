@@ -77,7 +77,10 @@ class Uri implements UriInterface{
 
     public function getPath(): string
     {
-        return (string)$this->path;
+		$path	= strlen($this->path) ? $this->path : '/';
+		if (!$path[0] === '/')
+			$path	= '/'.$path;
+        return (string)$path;
     }
 
     public function getQuery(): string
@@ -146,15 +149,15 @@ class Uri implements UriInterface{
     public function __toString(): string
     {
         $uriAsString    = vsprintf('%s%s%s%s%s', array(
-            !is_null($this->scheme) ? $this->scheme.':' : '',
-            !is_null($this->getAuthority()) ? '//'.$this->getAuthority() : '',
-            $this->path,
-            !is_null($this->getQuery()) ? '?'.$this->getQuery() : '',
-            !is_null($this->getFragment()) ? '#'.$this->getFragment() : '',
+            strlen($this->getScheme()) ? $this->getScheme().':' : '',
+            strlen($this->getAuthority()) ? '//'.$this->getAuthority() : '',
+            $this->getPath(),
+            strlen($this->getQuery()) ? '?'.$this->getQuery() : '',
+            strlen($this->getFragment()) ? '#'.$this->getFragment() : '',
         ));
-        var_export($this);
+/*        var_export($this);
         var_export($uriAsString);
-        die;
+        die;*/
         return $uriAsString;
     }
 }

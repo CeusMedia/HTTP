@@ -1,83 +1,103 @@
 <?php
 namespace CeusMedia\HTTP\Message;
 
+use Psr\Http\Message;
 use Psr\Http\Message\StreamInterface;
 
 class Stream implements StreamInterface
 {
+	protected $handle;
+	protected $size;
+	protected $position		= 0;
+
+	public function __construct($handle){
+		$this->handle	= $handle;
+	}
+
     public function __toString(): string
     {
-        return '';
+        return stream_get_contents($this->handle);
     }
 
     public function close()
     {
-
+		fclose($this->handle);
     }
 
     public function detach()
     {
-
     }
 
     public function getSize()
     {
-        return 0;
+        return $this->size;
     }
 
-    public function tell()
+    public function tell(): int
     {
-
+		ftell($this->handle);
     }
 
     public function eof(): bool
     {
-
+		return feof($this->handle);
     }
 
     public function isSeekable(): bool
     {
-
+		return (bool)$this->getMetadata('seekable');
     }
 
-    public function seek(int $offset, $whence = SEEK_SET)
+    public function seek($offset, $whence = Message::SEEK_SET)
     {
-
+		fseek($this->handle, $offset, $whence);
     }
 
     public function rewind()
     {
-
+		rewind($this->handle);
     }
 
     public function isWritable(): bool
     {
-
+		$mode	= $this->getMetadata('mode');
+		return preg_match('/(w|a|c|x\+)/', $mode);
     }
 
-
-    public function write(string $string): int
+    public function write($string): int
     {
-        return 0;
+        return fwrite($this->handle, $string);
     }
 
     public function isReadable(): bool
     {
-
+		$mode	= $this->getMetadata('mode');
+		return preg_match('/(r|a|\+)/', $mode);
     }
 
-    public function read(int $length): string
+    public function read($length): string
     {
-        return '';
+        return fread($this->handle, $length);
     }
 
     public function getContents(): string
     {
-        return '';
+        return fgets($this->handle);
     }
 
     public function getMetadata($key = NULL)
     {
-
+		if(is_null($this->metaData))
+			$this->metaData	= stream_get_meta_data($this->handle);
+		if(is_null($key))
+			return $this->metaData;
+		$data	= $this->metaData;
+		$keyParts	= explode('.', $key);
+		foreach($keyParts as $part){
+			if(!isset($data[$part]))
+				return null;
+			$data	= $data[$part];
+		}
+		return $data;
     }
 }

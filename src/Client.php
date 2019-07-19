@@ -3,32 +3,25 @@ namespace CeusMedia\HTTP;
 
 use CeusMedia\HTTP\Message\Request;
 use CeusMedia\HTTP\Message\Response;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class Client
+class Client implements ClientInterface
 {
+	protected $handler	= 'Filesystem';
+
 	public function createMessage()
 	{
 		return new Request();
 	}
 
-	public function send(RequestInterface $request): ResponseInterface
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
-		$headers	= '';
-		foreach(array_keys($request->getHeaders()) as $headerKey)
-			$headers	.= $request->getHeaderLine($headerKey)."\r\n";
-		$streamOptions	= ['http'	=> [
-			'method'	=> $request->getMethod(),
-			'header'	=> $headers,
-		]];
-
-		$context	= stream_context_create($streamOptions);
-		$handle		= fopen($request->getUri(), 'r', false, $context);
-
-		$response	= stream_get_contents($handle);
-		print_r($response);die;
-		$response	= new Response();
-		return $response;
+		$className	= __NAMESPACE__.'\\Client\\'.$this->handler.'\\Sender';
+		if(!class_exists($className))
+			throw new \RuntimeException('Client request sender not existing: '.$className);
+		$handler	= new $className;
+		return $handler->sendRequest($request);
 	}
 }

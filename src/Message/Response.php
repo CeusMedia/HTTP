@@ -16,7 +16,8 @@ class Response extends AbstractMessage implements ResponseInterface
     public function withStatus($code, $reasonPhrase = ''): self
     {
         $this->statusCode       = $code;
-        $this->$reasonPhrase    = $reasonPhrase;
+        $this->reasonPhrase    = $reasonPhrase;
+		return $this;
     }
 
     public function getReasonPhrase(): string
