@@ -9,8 +9,8 @@ use Psr\Http\Message\StreamInterface;
 
 abstract class AbstractMessage implements MessageInterface
 {
-	protected $protocolVersion = '1.1';
-	protected $headers         = array();
+	protected $protocolVersion	= '1.1';
+	protected $headers			= array();
 	protected $body;
 
 	public function __construct()
@@ -19,7 +19,7 @@ abstract class AbstractMessage implements MessageInterface
 	}
 
 	public function getHeader( $name ): array
-    {
+	{
 		$list	= [];
 		foreach( $this->headers->getFieldsByName( $name ) as $field )
 			$list[]	= $field->getValue();
@@ -28,9 +28,9 @@ abstract class AbstractMessage implements MessageInterface
 
 	public function getHeaders(): array
 	{
-        $list   = [];
+		$list   = [];
 		$keyMap	= [];
-        foreach( $this->headers->getFields() as $field ){
+		foreach( $this->headers->getFields() as $field ){
 			$name	= $field->getName();
 			$key	= strtolower( $name );
 			if( !array_key_exists( $key, $keyMap ) ){
@@ -43,7 +43,7 @@ abstract class AbstractMessage implements MessageInterface
 	}
 
 	public function getHeaderLine( $name ): string
-    {
+	{
 		$list   	= [];
 		foreach( $this->headers->getFieldsByName( $name ) as $field )
 			$list[]	= $field->getValue();
@@ -53,43 +53,44 @@ abstract class AbstractMessage implements MessageInterface
 	public function getProtocolVersion(): string
 	{
 		return $this->protocolVersion;
-    }
+	}
 
 	public function getBody(): StreamInterface
-    {
+	{
 		if(is_null( $this->body ) )
 			return new Stream( fopen( 'php://memory', 'rw' ) );
-        return $this->body;
-    }
+		return $this->body;
+	}
 
 	public function withBody( StreamInterface $body ): self
-    {
-        $this->body = $body;
+	{
+		$this->body = $body;
 		return $this;
 	}
 
 	public function hasHeader( $name ): bool
-    {
-		return $this->header->hasField( $name );
+	{
+		return $this->headers->hasField( $name );
 	}
 
-    public function withHeader( $name, $value ): self
-    {
-		$this->headers->setField( new HeaderField( $name, $value ), TRUE );
-        return $this;
-    }
+	public function withHeader( $name, $value ): self
+	{
+		$copy	= clone $this;
+		$copy->headers->setField( new HeaderField( $name, $value ), TRUE );
+		return $this;
+	}
 
-    public function withAddedHeader( $name, $value ): self
-    {
+	public function withAddedHeader( $name, $value ): self
+	{
 		$this->headers->setField( new HeaderField( $name, $value ), FALSE );
 		return $this;
-    }
+	}
 
-    public function withoutHeader( $name ): self
-    {
+	public function withoutHeader( $name ): self
+	{
 		$this->headers->removeFieldByName( $name );
-        return $this;
-    }
+		return $this;
+	}
 
 	public function withProtocolVersion( $version ): self
 	{

@@ -28,8 +28,9 @@ class Request extends AbstractMessage implements RequestInterface
 
 	public function withMethod( $method ): RequestInterface
 	{
-		$this->method	= (string) $method;
-		return $this;
+		$copy	= clone $this;
+		$copy->method	= (string) $method;
+		return $copy;
 	}
 
 	public function withRequestTarget( $requestTarget ): RequestInterface

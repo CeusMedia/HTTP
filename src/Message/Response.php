@@ -1,12 +1,12 @@
 <?php
-namespace CeusMedia\Http\Message;
+namespace CeusMedia\HTTP\Message;
 
 use Psr\Http\Message\ResponseInterface;
 
 class Response extends AbstractMessage implements ResponseInterface
 {
-	protected $statusCode   = 0;
-	protected $reasonPhrase = '';
+	protected int $statusCode		= 0;
+	protected string $reasonPhrase	= '';
 
 	public function getReasonPhrase(): string
 	{
@@ -20,8 +20,9 @@ class Response extends AbstractMessage implements ResponseInterface
 
 	public function withStatus( $code, $reasonPhrase = '' ): self
 	{
-		$this->statusCode   = $code;
-		$this->reasonPhrase = $reasonPhrase;
-		return $this;
+		$copy	= clone $this;
+		$copy->statusCode	= $code;
+		$copy->reasonPhrase	= $reasonPhrase;
+		return $copy;
 	}
 }

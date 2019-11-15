@@ -184,7 +184,7 @@ class Collection
 	{
 		if( !$this->hasField( $name ) )
 			return [];
-		return $this->fields( strtolower( $name ) );
+		return $this->fields[strtolower( $name )];
 	}
 
 	public function hasField( string $name ): bool
@@ -259,4 +259,4 @@ class Collection
 		return $this->render();
 	}
 }
-?>
+

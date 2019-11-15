@@ -1,6 +1,7 @@
 <?php
 namespace CeusMedia\HTTP\Client\Filesystem;
 
+use CeusMedia\HTTP\Client\ClientException;
 use CeusMedia\HTTP\Message\Request;
 use CeusMedia\HTTP\Message\Response;
 use CeusMedia\HTTP\Message\Stream;
@@ -25,7 +26,7 @@ class Sender implements ClientInterface
 		$handle		= @fopen($request->getUri(), 'r', false, $context);
 		if(!$handle){
 			if(!count($http_response_header))
-				throw new \Psr\Http\Client\ClientExceptionInterface('Request failed');
+				throw new ClientException('Request failed');
 			$response	= $this->interpreteHttpResponseHeaders($http_response_header);
 		}
 		else{
