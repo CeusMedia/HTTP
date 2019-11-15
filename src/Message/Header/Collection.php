@@ -164,114 +164,97 @@ class Collection
 
 	protected $fields	= [];
 
-	public function addField( Field $field )
+	public function addField( Field ...$field ): self
 	{
-		return $this->setField( $field, FALSE );
+		foreach( $field as $item )
+			$this->setField( $item, FALSE );
+		return $this;
 	}
 
-	public function addFieldPair( $name, $value )
+	public function getFields(): array
 	{
-		$field	= new Field( $name, $value );
-		$this->addField( $field );
-	}
-
-	public function addFields( $fields )
-	{
-		foreach( $fields as $field )
-			$this->addField( $field );
-	}
-
-	public function getFields()
-	{
-		$list	= array();
-		foreach( $this->fields as $key => $fieldList ){
-			if(!count($fieldList))
-				continue;
-			$values	= [];
-			$name = null;
-			foreach($fieldList as $field){
-				$name 		= $name ? $name : $field->getName();
-				$values[]	= $field->getValue();
-			}
-			$list[$name]	= $values;
-		}
+		$list	= [];
+		foreach( $this->fields as $key => $fields )
+			foreach( $fields as $field )
+				$list[]	= $field;
 		return $list;
 	}
 
-	public function getFieldsByName( $name )
+	public function getFieldsByName( string $name ): array
 	{
-		$list	= array();
-		$key	= strtolower( $name );
-		foreach($this->fields as $index => $field)
-			if(strtolower($field->getName()) === $key)
-				$list[]	 = $field;
-		return array();
+		if( !$this->hasField( $name ) )
+			return [];
+		return $this->fields( strtolower( $name ) );
 	}
 
-	public function hasField( $name )
+	public function hasField( string $name ): bool
 	{
-		$key	= strtolower( $name );
-		foreach($this->fields as $field)
-			if(strtolower($field->getName()) === $key)
-				return TRUE;
-		return FALSE;
+		return array_key_exists( strtolower( $name ), $this->fields );
 	}
 
-	public function removeField( Field $field )
+	public function removeField( Field $field ): self
 	{
-		foreach($this->fields as $index => $item)
-			if(strtolower($item->getName()) === strtolower($field->getName()))
-				if($item->getValue() === $field->getValue())
-					unset($this->fields[$index]);
+		foreach( $this->fields as $key => $items ){
+			foreach( $items as $index => $item ){
+				if( strtolower( $item->getName() ) === strtolower( $field->getName() ) ){
+					if( $item->getValue() === $field->getValue() ){
+						unset( $this->fields[$key][$index] );
+						if( count( $this->fields[$key] ) === 0 ){
+							unset( $this->fields[$key] );
+						}
+					}
+				}
+			}
+		}
 		return $this;
 	}
 
-	public function removeByName( $name )
+	public function removeFieldByName( string $name ): self
 	{
-		foreach($this->fields as $index => $item)
-			if(strtolower($item->getName()) === strtolower($field->getName()))
-				unset($this->fields[$index]);
+		foreach( $this->fields as $key => $items ){
+			foreach( $items as $index => $item ){
+				if( strtolower( $item->getName() ) === strtolower( $field->getName() ) ){
+					unset( $this->fields[$key][$index] );
+					if( count( $this->fields[$key] ) === 0 ){
+						unset( $this->fields[$key] );
+					}
+				}
+			}
+		}
 		return $this;
 	}
 
-	public function setField( Field $field, $emptyBefore = TRUE ): self
+	public function setField( Field $field, ?bool $emptyBefore = TRUE ): self
 	{
-		$this->validateFieldName($field->getName());
-        $key    = strtolower($field->getName());
-		if(!isset($this->fields[$key]) || $emptyBefore)
+		$this->validateFieldName( $field->getName() );
+        $key    = strtolower( $field->getName() );
+		if( !isset( $this->fields[$key] ) || $emptyBefore )
 			$this->fields[$key]   = [];
         $this->fields[$key][]   = $field;
 		return $this;
 	}
 
-	public function setFieldPair( $name, $value, $emptyBefore = TRUE )
+	public function render(): string
 	{
-		$this->setField( new Field( $name, $value ), $emptyBefore );
-		return $this;
+		$list	= [];
+		foreach( $this->fields as $key => $items )
+			foreach( $items as $item )
+				$list[]	= $item->toString();
+		return join( "\r\n", $list )."\r\n";
 	}
 
-	public function render(){
-		$fields	= $this->fields;
-		if (!$fields)
-			return '';
-		$list	= array();
-		foreach($fields as $field)
-			$list[]	= $field->toString();
-		$string	= join("\r\n", $list)."\r\n";
-		return $string;
-	}
-
-	protected function validateFieldName($name){
+	protected function validateFieldName( string $name ): bool
+	{
 		$name	= strtolower( $name );
-		foreach($this->allowedHeaders as $section => $names)
-			if(in_array($name, $names))
+		foreach( $this->allowedHeaders as $section => $names )
+			if( in_array( $name, $names ) )
 				return TRUE;
-		if(substr($name, 0, 2) === 'x-')
+		if( substr( $name, 0, 2) === 'x-' )
 			return TRUE;
 		return FALSE;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}

@@ -3,6 +3,7 @@ namespace CeusMedia\HTTP\Message;
 
 use CeusMedia\HTTP\Message\Stream;
 use CeusMedia\HTTP\Message\Header\Collection as HeaderCollection;
+use CeusMedia\HTTP\Message\Header\Field as HeaderField;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -12,34 +13,41 @@ abstract class AbstractMessage implements MessageInterface
 	protected $headers         = array();
 	protected $body;
 
-	public function __construct(){
+	public function __construct()
+	{
 		$this->headers		= new HeaderCollection();
 	}
 
-	public function getHeader($name)
+	public function getHeader( $name ): array
     {
-		return $this->headers->getField($name);
-        $key    = strtolower($name);
-        if(!isset($this->headers[$key]))
-            return [];
-		return $this->headers[$key]['values'];
-	}
-
-	public function getHeaders(){
-		return $this->headers->getFields();
-        $list   = [];
-        foreach($this->headers as $header)
-            $list[$header['name']]  = $header['values'];
+		$list	= [];
+		foreach( $this->headers->getFieldsByName( $name ) as $field )
+			$list[]	= $field->getValue();
 		return $list;
 	}
 
-	public function getHeaderLine($name)
+	public function getHeaders(): array
+	{
+        $list   = [];
+		$keyMap	= [];
+        foreach( $this->headers->getFields() as $field ){
+			$name	= $field->getName();
+			$key	= strtolower( $name );
+			if( !array_key_exists( $key, $keyMap ) ){
+				$list[$name]	= [];
+				$keyMap[$key]	= $name;
+			}
+			$list[$keyMap[$key]][]	= $field->getValue();
+		}
+		return $list;
+	}
+
+	public function getHeaderLine( $name ): string
     {
-		return jion(',', $this->headers->getField($name));
-        $key    = strtolower($name);
-        if(!isset($this->headers[$key]))
-            return [];
-        return join(',', $this->headers[$key]['values']);
+		$list   	= [];
+		foreach( $this->headers->getFieldsByName( $name ) as $field )
+			$list[]	= $field->getValue();
+		return join(', ', $list );
 	}
 
 	public function getProtocolVersion(): string
@@ -49,58 +57,43 @@ abstract class AbstractMessage implements MessageInterface
 
 	public function getBody(): StreamInterface
     {
-		if(is_null($this->body))
-			return new Stream(fopen('php://memory', 'rw'));
+		if(is_null( $this->body ) )
+			return new Stream( fopen( 'php://memory', 'rw' ) );
         return $this->body;
     }
 
-	public function withBody(StreamInterface $body): self
+	public function withBody( StreamInterface $body ): self
     {
         $this->body = $body;
 		return $this;
 	}
 
-	public function hasHeader($name): bool
+	public function hasHeader( $name ): bool
     {
-		return $this->header->hasField($name);
-        $key    = strtolower($name);
-        return isset($this->headers[$key]);
+		return $this->header->hasField( $name );
 	}
 
-    public function withHeader($name, $value): self
+    public function withHeader( $name, $value ): self
     {
-		$this->headers->setFieldPair($name, $value, TRUE);
+		$this->headers->setField( new HeaderField( $name, $value ), TRUE );
         return $this;
     }
 
-    public function withAddedHeader($name, $value): self
+    public function withAddedHeader( $name, $value ): self
     {
-		$this->headers->setFieldPair($name, $value, FALSE);
+		$this->headers->setField( new HeaderField( $name, $value ), FALSE );
 		return $this;
-        if(!$this->hasHeader($name))
-            return $this->withHeader($name, $value);
-		if(!is_array($value))
-            $value  = [$value];
-        $key    = strtolower($name);
-        $header = $this->headers[$key];
-        foreach($value as $item)
-            $header['values'][]   = $item;
-        return $this;
     }
 
-    public function withoutHeader($name): self
+    public function withoutHeader( $name ): self
     {
-		throw new \Exception('Not implemented');
-        if($this->hasHeader($name)){
-            $key    = strtolower($name);
-            unset($this->headers[$key]);
-        }
+		$this->headers->removeFieldByName( $name );
         return $this;
     }
 
-	public function withProtocolVersion($version): self
+	public function withProtocolVersion( $version ): self
 	{
-		$this->protocolVersion	= (string) $version;
-		return $message;
+		$this->protocolVersion	= $version;
+		return $this;
 	}
 }

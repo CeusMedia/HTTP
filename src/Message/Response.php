@@ -5,23 +5,23 @@ use Psr\Http\Message\ResponseInterface;
 
 class Response extends AbstractMessage implements ResponseInterface
 {
-    protected $statusCode   = 0;
-    protected $reasonPhrase = '';
+	protected $statusCode   = 0;
+	protected $reasonPhrase = '';
 
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
-    }
+	public function getReasonPhrase(): string
+	{
+		return $this->reasonPhrase;
+	}
 
-    public function withStatus($code, $reasonPhrase = ''): self
-    {
-        $this->statusCode       = $code;
-        $this->reasonPhrase    = $reasonPhrase;
+	public function getStatusCode(): int
+	{
+		return $this->statusCode;
+	}
+
+	public function withStatus( $code, $reasonPhrase = '' ): self
+	{
+		$this->statusCode   = $code;
+		$this->reasonPhrase = $reasonPhrase;
 		return $this;
-    }
-
-    public function getReasonPhrase(): string
-    {
-        return $this->reasonPhrase;
-    }
+	}
 }

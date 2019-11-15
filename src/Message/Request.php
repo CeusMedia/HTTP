@@ -9,15 +9,16 @@ class Request extends AbstractMessage implements RequestInterface
 {
 	protected $requestTarget	= '/';
 	protected $method			= 'GET';
-
-	public function getRequestTarget(): string
-	{
-		return $this->requestTarget;
-	}
+	protected $uri;
 
 	public function getMethod(): string
 	{
 		return $this->method;
+	}
+
+	public function getRequestTarget(): string
+	{
+		return $this->requestTarget;
 	}
 
 	public function getUri(): UriInterface
@@ -25,22 +26,22 @@ class Request extends AbstractMessage implements RequestInterface
 		return $this->uri;
 	}
 
-	public function withMethod($method): Request
+	public function withMethod( $method ): RequestInterface
 	{
 		$this->method	= (string) $method;
-		return $message;
+		return $this;
 	}
 
-	public function withRequestTarget($requestTarget): Request
+	public function withRequestTarget( $requestTarget ): RequestInterface
 	{
 		$this->requestTarget	= (string) $requestTarget;
-		return $message;
+		return $this;
 	}
 
-	public function withUri(UriInterface $uri, $preserveHost = FALSE): self
+	public function withUri( UriInterface $uri, $preserveHost = FALSE ): RequestInterface
 	{
-		if(!$preserveHost || (!$this->getHeader('Host') && $uri->getHost()))
-			$this->withHeader('Host', $uri->getHost());
+		if( !$preserveHost || ( !$this->getHeader('Host') && $uri->getHost() ) )
+			$this->withHeader( 'Host', $uri->getHost() );
 		$this->uri	= $uri;
 		return $this;
 	}

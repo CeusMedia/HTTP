@@ -53,7 +53,7 @@ class Field
 	 *	@param		string		$value		Value of Header
 	 *	@return		void
 	 */
-	public function __construct( $name, $value )
+	public function __construct( string $name, $value )
 	{
 		$this->setName( $name );
 		$this->setValue( $value );
@@ -78,7 +78,7 @@ class Field
 	 *	@access		public
 	 *	@return		string		Header Name
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return $this->name;
 	}
@@ -88,23 +88,25 @@ class Field
 	 *	@access		public
 	 *	@return		string|array	Header Value or Array of qualified Values
 	 */
-	public function getValue( $qualified = FALSE )
+	public function getValue( ?bool $qualified = FALSE ): string
 	{
 		if( $qualified )
 			return $this->decodeQualifiedValues ( $this->value );
 		return $this->value;
 	}
 
-	public function setName( $name )
+	public function setName( string $name ): self
 	{
 		if( !trim( $name ) )
 			throw new InvalidArgumentException( 'Field name cannot be empty' );
 		$this->name	= $name;
+        return $this;
 	}
 
-	public function setValue( $value )
+	public function setValue( $value ): self
 	{
 		$this->value	= $value;
+        return $this;
 	}
 
 	/**
@@ -112,7 +114,7 @@ class Field
 	 *	@access		public
 	 *	@return		string
 	 */
-	public function toString()
+	public function toString(): string
 	{
 		if( function_exists( 'mb_convert_case' ) )
 			$name	= mb_convert_case( $this->name, MB_CASE_TITLE );
@@ -121,7 +123,7 @@ class Field
 		return $name.": ".$this->value;
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->toString();
 	}
