@@ -2,7 +2,7 @@
 require_once '../../vendor/autoload.php';
 
 use CeusMedia\HTTP\Client;
-use CeusMedia\HTTP\Message\Uri;
+use CeusMedia\HTTP\Uri;
 
 $urls		= [
 	'https://ceusmedia.de/invalid',
