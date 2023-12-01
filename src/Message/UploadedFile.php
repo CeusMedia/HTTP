@@ -1,38 +1,46 @@
 <?php
 namespace CeusMedia\HTTP\Message;
 
-use Psr\Http\Message;
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use CeusMedia\Http\Message\Stream;
 
 class UploadedFile implements UploadedFileInterface
 {
+	/** @var Stream|StreamInterface  */
 	protected $source;
-	protected $isStream;
-	protected $size;
-	protected $error;
-	protected $clientFilename;
-	protected $clientMediaType;
+	protected bool $isStream;
+	protected int $size;
+	protected int $error;
+	protected ?string $clientFilename;
+	protected ?string $clientMediaType;
 
+	/**
+	 *	@param		Stream|StreamInterface|resource|string	$source
+	 *	@param		int				$size
+	 *	@param		int				$error
+	 *	@param		string|null		$clientFilename
+	 *	@param		string|null		$clientMediaType
+	 *	@throws		InvalidArgumentException
+	 */
 	public function __construct( $source, int $size, int $error, ?string $clientFilename = NULL, ?string $clientMediaType = NULL )
 	{
 		$this->source			= $source;
 		$this->size				= $size;
-		$this->erorr			= $error;
+		$this->error			= $error;
 		$this->clientFilename	= $clientFilename;
 		$this->clientMediaType	= $clientMediaType;
 
-		if( is_resource( $source ) ){
+		if( $source instanceof StreamInterface )
+			$this->isStream		= TRUE;
+		else if( is_resource( $source ) ){
 			$this->isStream		= TRUE;
 			$this->source		= new Stream( $source );
 		}
-		else if( $source instanceof StreamInterface )
-			$this->isStream		= TRUE;
 		else if( is_string( $source ) )
 			$this->isStream		= FALSE;
 		else
-			throw new \InvalidArgumentException( 'Source must be file path or stream' );
+			throw new InvalidArgumentException( 'Source must be file path or stream' );
 	}
 
 	public function getStream() : StreamInterface
@@ -52,22 +60,22 @@ class UploadedFile implements UploadedFileInterface
 		}
 	}
 
-	public function getSize()
+	public function getSize(): int
 	{
 		return $this->size;
 	}
 
-	public function getError()
+	public function getError(): int
 	{
 		return $this->error;
 	}
 
-	public function getClientFilename()
+	public function getClientFilename(): ?string
 	{
 		return $this->clientFilename;
 	}
 
-	public function getClientMediaType()
+	public function getClientMediaType(): ?string
 	{
 		return $this->clientMediaType;
 	}

@@ -9,8 +9,8 @@ use Psr\Http\Message\StreamInterface;
 
 abstract class AbstractMessage implements MessageInterface
 {
-	protected $protocolVersion	= '1.1';
-	protected $headers			= array();
+	protected string $protocolVersion	= '1.1';
+	protected HeaderCollection $headers;
 	protected $body;
 
 	public function __construct()
@@ -57,7 +57,7 @@ abstract class AbstractMessage implements MessageInterface
 
 	public function getBody(): StreamInterface
 	{
-		if(is_null( $this->body ) )
+		if( is_null( $this->body ) )
 			return new Stream( fopen( 'php://memory', 'rw' ) );
 		return $this->body;
 	}
@@ -68,31 +68,31 @@ abstract class AbstractMessage implements MessageInterface
 		return $this;
 	}
 
-	public function hasHeader( $name ): bool
+	public function hasHeader( string $name ): bool
 	{
 		return $this->headers->hasField( $name );
 	}
 
-	public function withHeader( $name, $value ): self
+	public function withHeader( string $name, $value ): self
 	{
 		$copy	= clone $this;
 		$copy->headers->setField( new HeaderField( $name, $value ), TRUE );
 		return $this;
 	}
 
-	public function withAddedHeader( $name, $value ): self
+	public function withAddedHeader( string $name, $value ): self
 	{
 		$this->headers->setField( new HeaderField( $name, $value ), FALSE );
 		return $this;
 	}
 
-	public function withoutHeader( $name ): self
+	public function withoutHeader( string $name ): self
 	{
 		$this->headers->removeFieldByName( $name );
 		return $this;
 	}
 
-	public function withProtocolVersion( $version ): self
+	public function withProtocolVersion( string $version ): self
 	{
 		$this->protocolVersion	= $version;
 		return $this;

@@ -2,7 +2,7 @@
 /**
  *	...
  *
- *	Copyright (c) 2010-2018 Christian Würker (ceusmedia.de)
+ *	Copyright (c) 2010-2023 Christian Würker (ceusmedia.de)
  *
  *	This program is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -18,13 +18,11 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *	@category		Library
- *	@package		CeusMedia_Common_Net_HTTP_Header
+ *	@package		CeusMedia_HTTP_Message_Header
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2018 Christian Würker
+ *	@copyright		2010-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@link			https://github.com/CeusMedia/Common
- *	@since			0.7.1
- *	@version		$Id$
+ *	@link			https://github.com/CeusMedia/HTTP
  */
 namespace CeusMedia\HTTP\Message\Header;
 
@@ -32,14 +30,13 @@ namespace CeusMedia\HTTP\Message\Header;
  *	...
  *
  *	@category		Library
- *	@package		CeusMedia_Common_Net_HTTP_Header
+ *	@package		CeusMedia_HTTP_Message_Header
  *	@author			Christian Würker <christian.wuerker@ceusmedia.de>
- *	@copyright		2010-2018 Christian Würker
+ *	@copyright		2010-2023 Christian Würker
  *	@license		http://www.gnu.org/licenses/gpl-3.0.txt GPL 3
- *	@link			https://github.com/CeusMedia/Common
- *	@since			0.7.1
- *	@version		$Id$
- *	@see			http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2 RFC 2616 HTTP Message Headers
+ *	@link			https://github.com/CeusMedia/HTTP
+ *	@see			https://www.rfc-editor.org/rfc/rfc2616.html#section-4.2 RFC 2616 HTTP Message Headers (obsolete)
+ *	@see			https://www.rfc-editor.org/rfc/rfc9110.html RFC 9110 HTTP Semantics
  *
  *	GENERAL
  *	-------
@@ -102,67 +99,66 @@ namespace CeusMedia\HTTP\Message\Header;
  */
 class Collection
 {
-	protected $allowedHeaders	= array(
-		'general'	=> array(
-			'cache-control'			=> array(),
-			'connection'			=> array(),
-			'date'					=> array(),
-			'pragma'				=> array(),
-			'trailer'				=> array(),
-			'transfer-encoding'		=> array(),
-			'upgrade'				=> array(),
-			'via'					=> array(),
-			'warning'				=> array()
-		),
-		'request'	=> array(
-			'accept'				=> array(),
-			'accept-charset'		=> array(),
-			'accept-encoding'		=> array(),
-			'accept-language'		=> array(),
-			'authorization'			=> array(),
-			'expect'				=> array(),
-			'from'					=> array(),
-			'host'					=> array(),
-			'if-match'				=> array(),
-			'if-modified-since'		=> array(),
-			'if-none-match'			=> array(),
-			'if-range'				=> array(),
-			'if-unmodified-since'	=> array(),
-			'max-forwards'			=> array(),
-			'proxy-authorization'	=> array(),
-			'range'					=> array(),
-			'referer'				=> array(),
-			'te'					=> array(),
-			'user-agent'			=> array()
-		),
-		'response'	=> array(
-			'accept-ranges'			=> array(),
-			'age'					=> array(),
-			'etag'					=> array(),
-			'location'				=> array(),
-			'proxy-authenticate'	=> array(),
-			'retry-after'			=> array(),
-			'server'				=> array(),
-			'vary'					=> array(),
-			'www-authenticate'		=> array()
-		),
-		'entity'	=> array(
-			'allow'		=> array(),
-			'content-encoding'		=> array(),
-			'content-language'		=> array(),
-			'content-length'		=> array(),
-			'content-location'		=> array(),
-			'content-md5'			=> array(),
-			'content-range'			=> array(),
-			'content-type'			=> array(),
-			'expires'				=> array(),
-			'last-modified'			=> array()
-		),
-		'others'	=> array(
-		)
-	);
+	protected array $allowedHeaders	= [
+		'general'	=> [
+			'cache-control'			=> [],
+			'connection'			=> [],
+			'date'					=> [],
+			'pragma'				=> [],
+			'trailer'				=> [],
+			'transfer-encoding'		=> [],
+			'upgrade'				=> [],
+			'via'					=> [],
+			'warning'				=> [],
+		],
+		'request'	=> [
+			'accept'				=> [],
+			'accept-charset'		=> [],
+			'accept-encoding'		=> [],
+			'accept-language'		=> [],
+			'authorization'			=> [],
+			'expect'				=> [],
+			'from'					=> [],
+			'host'					=> [],
+			'if-match'				=> [],
+			'if-modified-since'		=> [],
+			'if-none-match'			=> [],
+			'if-range'				=> [],
+			'if-unmodified-since'	=> [],
+			'max-forwards'			=> [],
+			'proxy-authorization'	=> [],
+			'range'					=> [],
+			'referer'				=> [],
+			'te'					=> [],
+			'user-agent'			=> [],
+		],
+		'response'	=> [
+			'accept-ranges'			=> [],
+			'age'					=> [],
+			'etag'					=> [],
+			'location'				=> [],
+			'proxy-authenticate'	=> [],
+			'retry-after'			=> [],
+			'server'				=> [],
+			'vary'					=> [],
+			'www-authenticate'		=> [],
+		],
+		'entity'	=> [
+			'allow'		=> [],
+			'content-encoding'		=> [],
+			'content-language'		=> [],
+			'content-length'		=> [],
+			'content-location'		=> [],
+			'content-md5'			=> [],
+			'content-range'			=> [],
+			'content-type'			=> [],
+			'expires'				=> [],
+			'last-modified'			=> [],
+		],
+		'others'	=> [],
+	];
 
-	protected $fields	= [];
+	protected array $fields	= [];
 
 	public function addField( Field ...$field ): self
 	{
@@ -194,12 +190,13 @@ class Collection
 
 	public function removeField( Field $field ): self
 	{
+		$fieldName	= strtolower( $field->getName() );
 		foreach( $this->fields as $key => $items ){
 			foreach( $items as $index => $item ){
-				if( strtolower( $item->getName() ) === strtolower( $field->getName() ) ){
+				if( strtolower( $item->getName() ) === $fieldName ){
 					if( $item->getValue() === $field->getValue() ){
 						unset( $this->fields[$key][$index] );
-						if( count( $this->fields[$key] ) === 0 ){
+						if( 0 === count( $this->fields[$key] ) ){
 							unset( $this->fields[$key] );
 						}
 					}
@@ -211,11 +208,12 @@ class Collection
 
 	public function removeFieldByName( string $name ): self
 	{
+		$name	= strtolower( $name );
 		foreach( $this->fields as $key => $items ){
 			foreach( $items as $index => $item ){
-				if( strtolower( $item->getName() ) === strtolower( $field->getName() ) ){
+				if( strtolower( $item->getName() ) === $name ){
 					unset( $this->fields[$key][$index] );
-					if( count( $this->fields[$key] ) === 0 ){
+					if( 0 === count( $this->fields[$key] ) ){
 						unset( $this->fields[$key] );
 					}
 				}
@@ -227,10 +225,10 @@ class Collection
 	public function setField( Field $field, ?bool $emptyBefore = TRUE ): self
 	{
 		$this->validateFieldName( $field->getName() );
-        $key    = strtolower( $field->getName() );
+		$key	= strtolower( $field->getName() );
 		if( !isset( $this->fields[$key] ) || $emptyBefore )
-			$this->fields[$key]   = [];
-        $this->fields[$key][]   = $field;
+			$this->fields[$key]		= [];
+		$this->fields[$key][]	= $field;
 		return $this;
 	}
 
@@ -249,7 +247,7 @@ class Collection
 		foreach( $this->allowedHeaders as $section => $names )
 			if( in_array( $name, $names ) )
 				return TRUE;
-		if( substr( $name, 0, 2) === 'x-' )
+		if( 'x-' === substr( $name, 0, 2 ) )
 			return TRUE;
 		return FALSE;
 	}

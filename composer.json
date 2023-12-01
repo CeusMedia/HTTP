@@ -8,15 +8,29 @@
             "email": "christian.wuerker@ceus-media.de"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-        "psr/http-message": "^1.0@dev",
+        "psr/http-message": "^1.0",
         "psr/http-client": "^1.0",
-        "psr/http-factory": "1.0.x-dev"
+        "psr/http-factory": "^1.0",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1",
+        "phpstan/phpstan-strict-rules": "^1"
     },
     "autoload": {
         "psr-4": {
             "CeusMedia\\HTTP\\": ["src/"]
         }
+    },
+    "scripts": {
+        "dev:stan": "XDEBUG_MODE=off vendor/bin/phpstan --configuration=phpstan.neon --verbose",
+        "dev:stan-clear": "XDEBUG_MODE=off vendor/bin/phpstan clear-result-cache --verbose",
+        "dev:stan-save": "XDEBUG_MODE=off vendor/bin/phpstan analyse --configuration=phpstan.neon --generate-baseline=phpstan-baseline.neon --verbose"
+    },
+    "scripts-descriptions": {
+        "dev:stan": "Static code analysis",
+        "dev:stan-clear": "Clear PHPStan cache",
+        "dev:stan-save": "Store current results in ignore list"
     }
 }

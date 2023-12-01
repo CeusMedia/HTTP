@@ -5,7 +5,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 #use CeusMedia\HTTP\Message\Uri;
 
-class Request implements ServerRequestInterface
+class ServerRequest implements ServerRequestInterface
 {
     public function getServerParams()
     {

@@ -1,0 +1,14 @@
+includes:
+#	- ../../vendor/phpstan/phpstan-strict-rules/rules.neon
+#	- phpstan-baseline.neon
+
+parameters:
+	phpVersion: 70400
+	level: 0
+	paths:
+		- src
+#	scanDirectories:
+#		- vendor/...
+	checkMissingIterableValueType: false
+	treatPhpDocTypesAsCertain: false
+	reportUnmatchedIgnoredErrors: false
