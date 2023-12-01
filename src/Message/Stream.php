@@ -8,9 +8,10 @@ class Stream implements StreamInterface
 {
 	protected $handle;
 	protected $size;
-	protected $position		= 0;
+	protected int $position		= 0;
 
-	public function __construct( $handle ){
+	public function __construct( $handle )
+	{
 		$this->handle	= $handle;
 	}
 
@@ -28,56 +29,9 @@ class Stream implements StreamInterface
 	{
 	}
 
-	public function getSize(): int
-	{
-		return $this->size;
-	}
-
-	public function tell(): int
-	{
-		return ftell( $this->handle );
-	}
-
 	public function eof(): bool
 	{
-		return feof($this->handle);
-	}
-
-	public function isSeekable(): bool
-	{
-		return (bool) $this->getMetadata( 'seekable' );
-	}
-
-	public function seek( $offset, $whence = Message::SEEK_SET )
-	{
-		fseek( $this->handle, $offset, $whence );
-	}
-
-	public function rewind()
-	{
-		rewind( $this->handle );
-	}
-
-	public function isWritable(): bool
-	{
-		$mode	= $this->getMetadata( 'mode' );
-		return preg_match( '/(w|a|c|x\+)/', $mode );
-	}
-
-	public function write( $string ): int
-	{
-		return fwrite( $this->handle, $string );
-	}
-
-	public function isReadable(): bool
-	{
-		$mode	= $this->getMetadata('mode');
-		return preg_match( '/(r|a|\+)/', $mode );
-	}
-
-	public function read( $length ): string
-	{
-		return fread( $this->handle, $length );
+		return feof( $this->handle );
 	}
 
 	public function getContents(): string
@@ -99,5 +53,52 @@ class Stream implements StreamInterface
 			$data	= $data[$part];
 		}
 		return $data;
+	}
+
+	public function getSize(): int
+	{
+		return $this->size;
+	}
+
+	public function isReadable(): bool
+	{
+		$mode	= $this->getMetadata('mode');
+		return preg_match( '/(r|a|\+)/', $mode );
+	}
+
+	public function isWritable(): bool
+	{
+		$mode	= $this->getMetadata( 'mode' );
+		return preg_match( '/(w|a|c|x\+)/', $mode );
+	}
+
+	public function isSeekable(): bool
+	{
+		return (bool) $this->getMetadata( 'seekable' );
+	}
+
+	public function read( int $length ): string
+	{
+		return fread( $this->handle, $length );
+	}
+
+	public function rewind()
+	{
+		rewind( $this->handle );
+	}
+
+	public function seek( $offset, $whence = SEEK_SET )
+	{
+		fseek( $this->handle, $offset, $whence );
+	}
+
+	public function tell(): int
+	{
+		return ftell( $this->handle );
+	}
+
+	public function write( string $string ): int
+	{
+		return fwrite( $this->handle, $string );
 	}
 }

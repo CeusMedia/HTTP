@@ -5,7 +5,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 #use CeusMedia\HTTP\Message\Uri;
 
-class ServerRequest implements ServerRequestInterface
+class ServerRequest extends Request implements ServerRequestInterface
 {
     public function getServerParams()
     {
@@ -32,8 +32,8 @@ class ServerRequest implements ServerRequestInterface
 
     }
 
-    public function getUploadedFiles()
-    {
+    public function getUploadedFiles(): array
+	{
         return $_FILES;
     }
 
